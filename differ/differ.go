@@ -116,8 +116,11 @@ const (
 )
 
 var (
-	notificationType types.EventType
-	notifier         *producer.KafkaProducer
+	notificationType               types.EventType
+	notifier                       *producer.KafkaProducer
+	notificationClusterDetailsURI  string
+	notificationRuleDetailsURI     string
+	notificationInsightsAdvisorURL string
 )
 
 // showVersion function displays version information.
@@ -163,6 +166,10 @@ func showConfiguration(config conf.ConfigStruct) {
 		Str("Rule details URI", notificationConfig.RuleDetailsURI).
 		Msg("Notifications configuration")
 
+	notificationClusterDetailsURI = notificationConfig.ClusterDetailsURI
+	notificationRuleDetailsURI = notificationConfig.RuleDetailsURI
+	notificationInsightsAdvisorURL = notificationConfig.InsightsAdvisorURL
+
 	metricsConfig := conf.GetMetricsConfiguration(config)
 
 	// Authentication token and metrics groups values are omitted on
@@ -201,7 +208,7 @@ func findRuleByNameAndErrorKey(
 	return
 }
 
-func processReportsByCluster(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry, notificationConfig conf.NotificationsConfiguration) {
+func processReportsByCluster(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry) {
 	defer types.TrackTime(time.Now(), "processReportsByCluster")
 	for i, cluster := range clusters {
 		log.Info().
@@ -240,7 +247,7 @@ func processReportsByCluster(ruleContent types.RulesMap, storage Storage, cluste
 		// if new report differs from the older one -> send notification
 		log.Info().Str(clusterName, string(cluster.ClusterName)).Msg("Different report from the last one")
 
-		notificationMsg := generateInstantNotificationMessage(notificationConfig.ClusterDetailsURI, fmt.Sprint(cluster.AccountNumber), string(cluster.ClusterName))
+		notificationMsg := generateInstantNotificationMessage(&notificationClusterDetailsURI, fmt.Sprint(cluster.AccountNumber), string(cluster.ClusterName))
 
 		for i, r := range deserialized.Reports {
 			module := r.Module
@@ -260,7 +267,7 @@ func processReportsByCluster(ruleContent types.RulesMap, storage Storage, cluste
 			if totalRisk >= totalRiskThreshold {
 				ReportWithHighImpact.Inc()
 				log.Warn().Int(totalRiskAttribute, totalRisk).Msg("Report with high impact detected")
-				notificationPayloadURL := generateNotificationPayloadURL(notificationConfig.RuleDetailsURI, string(cluster.ClusterName), module, errorKey)
+				notificationPayloadURL := generateNotificationPayloadURL(&notificationRuleDetailsURI, string(cluster.ClusterName), module, errorKey)
 				appendEventToNotificationMessage(notificationPayloadURL, &notificationMsg, description, totalRisk, time.Time(cluster.UpdatedAt).UTC().Format(time.RFC3339Nano))
 			}
 		}
@@ -307,7 +314,7 @@ func updateDigestNotificationCounters(digest *types.Digest, totalRisk int) {
 }
 
 // processAllReportsFromCurrentWeek function creates weekly digest with for all the clusters corresponding to each user account
-func processAllReportsFromCurrentWeek(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry, notificationConfig conf.NotificationsConfiguration) {
+func processAllReportsFromCurrentWeek(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry) {
 	digestByAccount := map[types.AccountNumber]types.Digest{}
 	digest := types.Digest{}
 
@@ -376,7 +383,7 @@ func processAllReportsFromCurrentWeek(ruleContent types.RulesMap, storage Storag
 			Int("important notifications", digest.ImportantNotifications).
 			Msg("Producing weekly notification for ")
 
-		notification := generateWeeklyNotificationMessage(notificationConfig.InsightsAdvisorURL, fmt.Sprint(account), digest)
+		notification := generateWeeklyNotificationMessage(&notificationInsightsAdvisorURL, fmt.Sprint(account), digest)
 		_, _, err := notifier.ProduceMessage(notification)
 		if err != nil {
 			log.Error().
@@ -388,14 +395,13 @@ func processAllReportsFromCurrentWeek(ruleContent types.RulesMap, storage Storag
 }
 
 // processClusters function creates desired notification messages for all the clusters obtained from the database
-func processClusters(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry, config conf.ConfigStruct) {
+func processClusters(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry) {
 	defer types.TrackTime(time.Now(), "processClusters")
-	notificationConfig := conf.GetNotificationsConfiguration(config)
 
 	if notificationType == types.InstantNotif {
-		processReportsByCluster(ruleContent, storage, clusters, notificationConfig)
+		processReportsByCluster(ruleContent, storage, clusters)
 	} else if notificationType == types.WeeklyDigest {
-		processAllReportsFromCurrentWeek(ruleContent, storage, clusters, notificationConfig)
+		processAllReportsFromCurrentWeek(ruleContent, storage, clusters)
 	}
 }
 
@@ -426,12 +432,12 @@ func setupNotificationProducer(brokerConfig conf.KafkaConfiguration) {
 }
 
 // generateInstantNotificationMessage function generates a notification message with no events for a given account+cluster
-func generateInstantNotificationMessage(clusterURI string, accountID string, clusterID string) (notification types.NotificationMessage) {
+func generateInstantNotificationMessage(clusterURI *string, accountID string, clusterID string) (notification types.NotificationMessage) {
 	defer types.TrackTime(time.Now(), "generateInstantNotificationMessage")
 	events := []types.Event{}
 	context := toJSONEscapedString(types.NotificationContext{
 		notificationContextDisplayName: clusterID,
-		notificationContextHostURL:     strings.Replace(clusterURI, "{cluster_id}", clusterID, 1),
+		notificationContextHostURL:     strings.Replace(*clusterURI, "{cluster_id}", clusterID, 1),
 	})
 	if context == "" {
 		log.Error().Msg(contextToEscapedStringError)
@@ -451,9 +457,9 @@ func generateInstantNotificationMessage(clusterURI string, accountID string, clu
 }
 
 // generateWeeklyNotificationMessage function generates a notification message with one event based on the provided digest
-func generateWeeklyNotificationMessage(advisorURI string, accountID string, digest types.Digest) (notification types.NotificationMessage) {
+func generateWeeklyNotificationMessage(advisorURI *string, accountID string, digest types.Digest) (notification types.NotificationMessage) {
 	context := toJSONEscapedString(types.NotificationContext{
-		notificationContextAdvisorURL: advisorURI,
+		notificationContextAdvisorURL: *advisorURI,
 	})
 	if context == "" {
 		log.Error().Msg(contextToEscapedStringError)
@@ -496,11 +502,11 @@ func generateWeeklyNotificationMessage(advisorURI string, accountID string, dige
 	return
 }
 
-func generateNotificationPayloadURL(ruleURI string, clusterID string, module types.ModuleName, errorKey types.ErrorKey) (notificationPayloadURL string) {
+func generateNotificationPayloadURL(ruleURI *string, clusterID string, module types.ModuleName, errorKey types.ErrorKey) (notificationPayloadURL string) {
 	defer types.TrackTime(time.Now(), "generateNotificationPayloadURL")
 	parsedModule := strings.ReplaceAll(string(module), ".", "|")
 	replacer := strings.NewReplacer("{cluster_id}", clusterID, "{module}", parsedModule, "{error_key}", string(errorKey))
-	notificationPayloadURL = replacer.Replace(ruleURI)
+	notificationPayloadURL = replacer.Replace(*ruleURI)
 	return
 }
 
@@ -689,7 +695,7 @@ func startDiffer(config conf.ConfigStruct, storage *DBStorage) {
 	log.Info().Msg("Kafka producer ready")
 	log.Info().Msg(separator)
 	log.Info().Msg("Checking new issues for all new reports")
-	processClusters(ruleContent, storage, clusters, config)
+	processClusters(ruleContent, storage, clusters)
 	log.Info().Msg(separator)
 	closeStorage(storage)
 	log.Info().Msg(separator)
