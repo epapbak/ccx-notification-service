@@ -39,6 +39,7 @@ import (
 
 // fetchAllRulesContent fetches the parsed rules provided by the content-service
 func fetchAllRulesContent(config conf.DependenciesConfiguration) (rules types.RulesMap, err error) {
+	defer types.TrackTime(time.Now(), "fetchAllRulesContent")
 	contentURL := config.ContentServiceServer + config.ContentServiceEndpoint
 	if !strings.HasPrefix(config.ContentServiceServer, "http") {
 		// if no protocol is specified in given URL, assume it is not

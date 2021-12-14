@@ -339,6 +339,7 @@ func (storage DBStorage) ReadStates() ([]types.State, error) {
 
 // ReadClusterList method creates list of clusters from all the rows in new_reports table.
 func (storage DBStorage) ReadClusterList() ([]types.ClusterEntry, error) {
+	defer types.TrackTime(time.Now(), "ReadClusterList")
 	var clusterList = make([]types.ClusterEntry, 0)
 
 	rows, err := storage.connection.Query("SELECT org_id, account_number, cluster, kafka_offset, updated_at FROM new_reports ORDER BY updated_at")
@@ -389,6 +390,7 @@ func (storage DBStorage) ReadReportForClusterAtTime(
 	orgID types.OrgID, clusterName types.ClusterName,
 	updatedAt types.Timestamp,
 ) (types.ClusterReport, error) {
+	defer types.TrackTime(time.Now(), "ReadReportForClusterAtTime")
 	var report types.ClusterReport
 
 	// explicit conversion is needed there - SQL library issue

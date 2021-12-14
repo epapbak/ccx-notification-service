@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/RedHatInsights/ccx-notification-service/types"
 	"github.com/rs/zerolog/log"
@@ -98,6 +99,7 @@ func shouldNotify(storage Storage, cluster types.ClusterEntry, report types.Repo
 }
 
 func updateNotificationRecordSameState(storage Storage, cluster types.ClusterEntry, report types.ClusterReport, notifiedAt types.Timestamp) {
+	defer types.TrackTime(time.Now(), "updateNotificationRecordSameState")
 	log.Info().Msgf("No new issues to notify for cluster %s", cluster.ClusterName)
 	NotificationNotSentSameState.Inc()
 	// store notification info about not sending the notification
@@ -108,6 +110,7 @@ func updateNotificationRecordSameState(storage Storage, cluster types.ClusterEnt
 }
 
 func updateNotificationRecordSentState(storage Storage, cluster types.ClusterEntry, report types.ClusterReport, notifiedAt types.Timestamp) {
+	defer types.TrackTime(time.Now(), "updateNotificationRecordSentState")
 	log.Info().Msgf("New issues notified for cluster %s", string(cluster.ClusterName))
 	NotificationSent.Inc()
 	err := storage.WriteNotificationRecordForCluster(cluster, notificationTypes.Instant, states.SentState, report, notifiedAt, "")
@@ -117,6 +120,7 @@ func updateNotificationRecordSentState(storage Storage, cluster types.ClusterEnt
 }
 
 func updateNotificationRecordErrorState(storage Storage, err error, cluster types.ClusterEntry, report types.ClusterReport, notifiedAt types.Timestamp) {
+	defer types.TrackTime(time.Now(), "updateNotificationRecordErrorState")
 	log.Info().Msgf("New issues couldn't be notified for cluster %s", string(cluster.ClusterName))
 	NotificationNotSentErrorState.Inc()
 	err = storage.WriteNotificationRecordForCluster(cluster, notificationTypes.Instant, states.ErrorState, report, notifiedAt, err.Error())

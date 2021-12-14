@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/rs/zerolog/log"
 	"time"
 )
 
@@ -228,4 +229,8 @@ type NotificationRecord struct {
 	Report             ClusterReport
 	NotifiedAt         Timestamp
 	ErrorLog           string
+}
+
+func TrackTime(start time.Time, name string) {
+	log.Printf("%s took %s", name, time.Since(start))
 }

@@ -181,6 +181,7 @@ func calculateTotalRisk(impact, likelihood int) int {
 // ->
 // cluster_wide_proxy_auth_check
 func moduleToRuleName(module types.ModuleName) types.RuleName {
+	defer types.TrackTime(time.Now(), "moduleToRuleName")
 	result := strings.TrimSuffix(string(module), ".report")
 	result = strings.TrimPrefix(result, "ccx_rules_ocp.")
 	result = strings.TrimPrefix(result, "external.")
@@ -194,6 +195,7 @@ func moduleToRuleName(module types.ModuleName) types.RuleName {
 func findRuleByNameAndErrorKey(
 	ruleContent types.RulesMap, ruleName types.RuleName, errorKey types.ErrorKey) (
 	likelihood int, impact int, totalRisk int, description string) {
+	defer types.TrackTime(time.Now(), "findRuleByNameAndErrorKey")
 	rc := ruleContent[string(ruleName)]
 	ek := rc.ErrorKeys
 	val := ek[string(errorKey)]
@@ -205,6 +207,7 @@ func findRuleByNameAndErrorKey(
 }
 
 func processReportsByCluster(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry, notificationConfig conf.NotificationsConfiguration) {
+	defer types.TrackTime(time.Now(), "processReportsByCluster")
 	for i, cluster := range clusters {
 		log.Info().
 			Int("#", i).
@@ -391,6 +394,7 @@ func processAllReportsFromCurrentWeek(ruleContent types.RulesMap, storage Storag
 
 // processClusters function creates desired notification messages for all the clusters obtained from the database
 func processClusters(ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry, config conf.ConfigStruct) {
+	defer types.TrackTime(time.Now(), "processClusters")
 	notificationConfig := conf.GetNotificationsConfiguration(config)
 
 	if notificationType == types.InstantNotif {
@@ -402,6 +406,7 @@ func processClusters(ruleContent types.RulesMap, storage Storage, clusters []typ
 
 // printClusters function displays information of all clusters in the given list
 func printClusters(clusters []types.ClusterEntry) {
+	defer types.TrackTime(time.Now(), "printClusters")
 	for i, cluster := range clusters {
 		log.Info().
 			Int("#", i).
@@ -427,6 +432,7 @@ func setupNotificationProducer(brokerConfig conf.KafkaConfiguration) {
 
 // generateInstantNotificationMessage function generates a notification message with no events for a given account+cluster
 func generateInstantNotificationMessage(clusterURI string, accountID string, clusterID string) (notification types.NotificationMessage) {
+	defer types.TrackTime(time.Now(), "generateInstantNotificationMessage")
 	events := []types.Event{}
 	context := toJSONEscapedString(types.NotificationContext{
 		notificationContextDisplayName: clusterID,
@@ -496,6 +502,7 @@ func generateWeeklyNotificationMessage(advisorURI string, accountID string, dige
 }
 
 func generateNotificationPayloadURL(ruleURI string, clusterID string, module types.ModuleName, errorKey types.ErrorKey) (notificationPayloadURL string) {
+	defer types.TrackTime(time.Now(), "generateNotificationPayloadURL")
 	parsedModule := strings.ReplaceAll(string(module), ".", "|")
 	replacer := strings.NewReplacer("{cluster_id}", clusterID, "{module}", parsedModule, "{error_key}", string(errorKey))
 	notificationPayloadURL = replacer.Replace(ruleURI)
@@ -504,7 +511,7 @@ func generateNotificationPayloadURL(ruleURI string, clusterID string, module typ
 
 // appendEventToNotificationMessage function adds a new event to the given notification message after constructing the payload string
 func appendEventToNotificationMessage(notificationPayloadURL string, notification *types.NotificationMessage, ruleDescription string, totalRisk int, publishDate string) {
-
+	defer types.TrackTime(time.Now(), "appendEventToNotificationMessage")
 	payload := toJSONEscapedString(types.EventPayload{
 		notificationPayloadRuleDescription: ruleDescription,
 		notificationPayloadRuleURL:         notificationPayloadURL,
@@ -572,6 +579,7 @@ func checkArgs(args *types.CliFlags) {
 }
 
 func setupNotificationTypes(storage *DBStorage) {
+	defer types.TrackTime(time.Now(), "setupNotificationTypes")
 	err := getNotificationTypes(storage)
 	if err != nil {
 		log.Err(err).Msg("Read notification types")
@@ -580,6 +588,7 @@ func setupNotificationTypes(storage *DBStorage) {
 }
 
 func setupNotificationStates(storage *DBStorage) {
+	defer types.TrackTime(time.Now(), "setupNotificationStates")
 	err := getStates(storage)
 	if err != nil {
 		log.Err(err).Msg("Read states")
@@ -641,6 +650,8 @@ func deleteOperationSpecified(cliFlags types.CliFlags) bool {
 }
 
 func startDiffer(config conf.ConfigStruct, storage *DBStorage) {
+	defer types.TrackTime(time.Now(), "startDiffer")
+
 	log.Info().Msg("Differ started")
 	log.Info().Msg(separator)
 
@@ -696,6 +707,7 @@ func startDiffer(config conf.ConfigStruct, storage *DBStorage) {
 
 // Run function is entry point to the differ
 func Run() {
+	defer types.TrackTime(time.Now(), "Run")
 	var cliFlags types.CliFlags
 
 	// define and parse all command line options
