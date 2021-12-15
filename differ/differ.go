@@ -680,20 +680,22 @@ func startDiffer(config conf.ConfigStruct, storage *DBStorage) {
 		log.Err(err).Msg(operationFailedMessage)
 		os.Exit(ExitStatusStorageError)
 	}
-
-	printClusters(clusters)
-	log.Info().Int("clusters", len(clusters)).Msg("Read cluster list: done")
-	if len(clusters) == 0 {
+	entries := len(clusters)
+	if entries == 0 {
 		log.Info().Msg("Differ finished")
 		os.Exit(ExitStatusOK)
 	}
+	printClusters(clusters)
+	log.Info().Int("clusters", entries).Msg("Read cluster list: done")
 	log.Info().Msg(separator)
+
 	log.Info().Msg("Preparing Kafka producer")
 	setupNotificationProducer(conf.GetKafkaBrokerConfiguration(config))
 	log.Info().Msg("Kafka producer ready")
 	log.Info().Msg(separator)
 	log.Info().Msg("Checking new issues for all new reports")
 	processClusters(ruleContent, storage, clusters)
+	log.Info().Int("clusters", entries).Msg("Process Clusters Entries: done")
 	log.Info().Msg(separator)
 	closeStorage(storage)
 	log.Info().Msg(separator)
