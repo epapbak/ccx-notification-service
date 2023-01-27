@@ -9,6 +9,7 @@ IMAGE="quay.io/cloudservices/ccx-notification-service"
 COMPONENTS="ccx-notification-writer ccx-notification-service ccx-notification-db-cleaner"  # space-separated list of components to laod
 COMPONENTS_W_RESOURCES="ccx-notification-service"  # component to keep
 CACHE_FROM_LATEST_IMAGE="true"
+BDD_TESTS_REPOSITORY_URL="https://github.com/RedHatInsights/insights-behavioral-spec.git"
 
 export IQE_PLUGINS="ccx"
 export IQE_MARKER_EXPRESSION=""
@@ -25,6 +26,11 @@ function build_image() {
 
 function deploy_ephemeral() {
     source $CICD_ROOT/deploy_ephemeral_env.sh
+}
+
+function run_bdd_tests() {
+    git clone $BDD_TESTS_REPOSITORY_URL && pushd $BDD_TESTS_REPOSITORY_URL
+    WITHMOCK=0 make notification-service
 }
 
 function run_smoke_tests() {
@@ -44,3 +50,6 @@ deploy_ephemeral
 
 echo "running PR smoke tests"
 run_smoke_tests
+
+echo "Running DBB tests"
+run_bdd_tests
