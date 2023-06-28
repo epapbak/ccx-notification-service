@@ -25,6 +25,7 @@ package differ
 import (
 	"encoding/json"
 	"os"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 
@@ -124,7 +125,8 @@ func updateNotificationRecordErrorState(storage Storage, err error, cluster type
 	}
 }
 
-func updateNotificationRecordState(storage Storage, cluster types.ClusterEntry, report types.ClusterReport, numEvents int, notifiedAt types.Timestamp, eventTarget types.EventTarget, err error) {
+func updateNotificationRecordState(wg *sync.WaitGroup, storage Storage, cluster types.ClusterEntry, report types.ClusterReport, numEvents int, notifiedAt types.Timestamp, eventTarget types.EventTarget, err error) {
+	defer wg.Done()
 	switch {
 	case err != nil:
 		log.Warn().Int("issues notified so far", numEvents).Msg("Error sending notification events")

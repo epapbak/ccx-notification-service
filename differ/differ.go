@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -627,12 +628,32 @@ func checkWriteError(err error) {
 	}
 }
 
+// storeReportReadError stores the error when reading the report for a given
+// cluster if it is not already present in the database
+func storeReportReadError(wg *sync.WaitGroup, storage Storage, cluster *types.ClusterEntry, err error) {
+	defer wg.Done()
+
+	// is the problem reported already?
+	reportedAlready, readErr := storage.ReadErrorExists(cluster.OrgID, cluster.ClusterName, time.Time(cluster.UpdatedAt))
+	checkReadError(readErr)
+
+	// if the error is reported already, skip to next one
+	if reportedAlready {
+		return
+	}
+	// if not reported, process the error
+	ReadReportForClusterErrors.Inc()
+	log.Err(err).Msg(operationFailedMessage)
+	writeErr := storage.WriteReadError(cluster.OrgID, cluster.ClusterName, time.Time(cluster.UpdatedAt), err)
+	checkWriteError(writeErr)
+}
+
 func processReportsByCluster(config *conf.ConfigStruct, ruleContent types.RulesMap, storage Storage, clusters []types.ClusterEntry) {
 	notifiedIssues := 0
 	clustersCount := len(clusters)
 	skippedEntries := 0
 	emptyEntries := 0
-
+	wg := sync.WaitGroup{}
 	var rules types.Rules
 	if conf.GetServiceLogConfiguration(config).Enabled {
 		rules = getAllContentFromMap(ruleContent)
@@ -649,20 +670,9 @@ func processReportsByCluster(config *conf.ConfigStruct, ruleContent types.RulesM
 
 		report, err := storage.ReadReportForClusterAtTime(cluster.OrgID, cluster.ClusterName, cluster.UpdatedAt)
 		if err != nil {
-			// is the problem reported already?
-			reportedAlready, readErr := storage.ReadErrorExists(cluster.OrgID, cluster.ClusterName, time.Time(cluster.UpdatedAt))
-			checkReadError(readErr)
-
-			// if the error is reported already, skip to next one
-			if reportedAlready {
-				continue
-			}
-			// if not reported, process the error
-			ReadReportForClusterErrors.Inc()
+			wg.Add(1)
+			go storeReportReadError(&wg, storage, &cluster, err)
 			skippedEntries++
-			log.Err(err).Msg(operationFailedMessage)
-			writeErr := storage.WriteReadError(cluster.OrgID, cluster.ClusterName, time.Time(cluster.UpdatedAt), err)
-			checkWriteError(writeErr)
 			continue
 		}
 
@@ -685,7 +695,8 @@ func processReportsByCluster(config *conf.ConfigStruct, ruleContent types.RulesM
 		if conf.GetServiceLogConfiguration(config).Enabled {
 			notifiedAt := types.Timestamp(time.Now())
 			newNotifiedIssues, err := produceEntriesToServiceLog(config, cluster, rules, ruleContent, deserialized.Reports)
-			updateNotificationRecordState(storage, cluster, report, newNotifiedIssues, notifiedAt, types.ServiceLogTarget, err)
+			wg.Add(1)
+			go updateNotificationRecordState(&wg, storage, cluster, report, newNotifiedIssues, notifiedAt, types.ServiceLogTarget, err)
 			notifiedIssues += newNotifiedIssues
 		}
 
