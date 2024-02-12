@@ -275,10 +275,10 @@ func TestProcessClustersNoReportForClusterEntry(t *testing.T) {
 		mock.MatchedBy(func(orgID types.OrgID) bool { return orgID == 1 }),
 		mock.AnythingOfType("types.ClusterName"),
 		mock.AnythingOfType("types.Timestamp")).Return(
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) types.ClusterReport {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) types.ClusterReport {
 			return ""
 		},
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) error {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) error {
 			return sql.ErrNoRows
 		},
 	)
@@ -286,10 +286,10 @@ func TestProcessClustersNoReportForClusterEntry(t *testing.T) {
 		mock.MatchedBy(func(orgID types.OrgID) bool { return orgID == 2 }),
 		mock.AnythingOfType("types.ClusterName"),
 		mock.AnythingOfType("types.Timestamp")).Return(
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) types.ClusterReport {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) types.ClusterReport {
 			return "{\"reports\":[{\"rule_id\":\"rule_1|RULE_1\",\"component\":\"ccx_rules_ocp.external.rules.rule_1.report\",\"type\":\"rule\",\"key\":\"RULE_1\",\"details\":\"some details\"}]}"
 		},
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) error {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) error {
 			return nil
 		},
 	)
@@ -301,7 +301,7 @@ func TestProcessClustersNoReportForClusterEntry(t *testing.T) {
 		mock.AnythingOfType("types.Timestamp"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("types.EventTarget")).Return(
-		func(clusterEntry types.ClusterEntry, notificationTypeID types.NotificationTypeID, stateID types.StateID, report types.ClusterReport, notifiedAt types.Timestamp, errorLog string, eventTarget types.EventTarget) error {
+		func(_ types.ClusterEntry, _ types.NotificationTypeID, _ types.StateID, _ types.ClusterReport, _ types.Timestamp, _ string, _ types.EventTarget) error {
 			return nil
 		},
 	)
@@ -394,10 +394,10 @@ func TestProcessClustersInvalidReportFormatForClusterEntry(t *testing.T) {
 		mock.MatchedBy(func(orgID types.OrgID) bool { return orgID == 1 }),
 		mock.AnythingOfType("types.ClusterName"),
 		mock.AnythingOfType("types.Timestamp")).Return(
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) types.ClusterReport {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) types.ClusterReport {
 			return "{\"reports\":{\"rule_id\":\"rule_1|RULE_1\",\"component\":\"ccx_rules_ocp.external.rules.rule_1.report\",\"type\":\"rule\",\"key\":\"RULE_1\",\"details\":\"some details\"}}"
 		},
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) error {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) error {
 			return nil
 		},
 	)
@@ -405,10 +405,10 @@ func TestProcessClustersInvalidReportFormatForClusterEntry(t *testing.T) {
 		mock.MatchedBy(func(orgID types.OrgID) bool { return orgID == 2 }),
 		mock.AnythingOfType("types.ClusterName"),
 		mock.AnythingOfType("types.Timestamp")).Return(
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) types.ClusterReport {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) types.ClusterReport {
 			return "{\"reports\":[{\"rule_id\":\"rule_1|RULE_1\",\"component\":\"ccx_rules_ocp.external.rules.rule_1.report\",\"type\":\"rule\",\"key\":\"RULE_1\",\"details\":\"some details\"}]}"
 		},
-		func(orgID types.OrgID, clusterName types.ClusterName, updatedAt types.Timestamp) error {
+		func(_ types.OrgID, _ types.ClusterName, _ types.Timestamp) error {
 			return nil
 		},
 	)
@@ -420,7 +420,7 @@ func TestProcessClustersInvalidReportFormatForClusterEntry(t *testing.T) {
 		mock.AnythingOfType("types.Timestamp"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("types.EventTarget")).Return(
-		func(clusterEntry types.ClusterEntry, notificationTypeID types.NotificationTypeID, stateID types.StateID, report types.ClusterReport, notifiedAt types.Timestamp, errorLog string, eventTarget types.EventTarget) error {
+		func(_ types.ClusterEntry, _ types.NotificationTypeID, _ types.StateID, _ types.ClusterReport, _ types.Timestamp, _ string, _ types.EventTarget) error {
 			return nil
 		},
 	)

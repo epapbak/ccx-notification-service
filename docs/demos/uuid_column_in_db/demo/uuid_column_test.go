@@ -635,7 +635,6 @@ func performInsertBenchmark(b *testing.B,
 	insertFunction InsertFunction,
 	report *string,
 	dropTables bool) {
-
 	// connect to database
 	b.StopTimer()
 	time.Sleep(TimeToBreath * time.Minute)
@@ -665,7 +664,6 @@ func performDeleteBenchmark(b *testing.B,
 	insertFunction InsertFunction,
 	report *string,
 	dropTables bool) {
-
 	// connect to database
 	b.StopTimer()
 	time.Sleep(TimeToBreath * time.Minute)
@@ -710,7 +708,6 @@ func performSelectBenchmark(b *testing.B,
 	selectFunction SelectFunction,
 	report *string,
 	dropTables bool) {
-
 	// connect to database
 	b.StopTimer()
 	time.Sleep(TimeToBreath * time.Minute)

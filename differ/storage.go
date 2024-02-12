@@ -492,7 +492,6 @@ func (storage DBStorage) ReadReportForCluster(
 // See also: WriteNotificationRecordForCluster, WriteNotificationRecordImpl
 func (storage DBStorage) WriteNotificationRecord(
 	notificationRecord *types.NotificationRecord) error {
-
 	return storage.WriteNotificationRecordImpl(notificationRecord.OrgID,
 		notificationRecord.AccountNumber, notificationRecord.ClusterName,
 		notificationRecord.NotificationTypeID, notificationRecord.StateID,
@@ -517,7 +516,6 @@ func (storage DBStorage) WriteNotificationRecordImpl(
 	notifiedAt types.Timestamp,
 	errorLog string,
 	eventTarget types.EventTarget) error {
-
 	const insertStatement = `
             INSERT INTO reported
             (org_id, account_number, cluster, notification_type, state, report, updated_at, notified_at, error_log, event_type_id)
@@ -545,7 +543,6 @@ func (storage DBStorage) WriteNotificationRecordForCluster(
 	notifiedAt types.Timestamp,
 	errorLog string,
 	eventTarget types.EventTarget) error {
-
 	return storage.WriteNotificationRecordImpl(clusterEntry.OrgID,
 		clusterEntry.AccountNumber, clusterEntry.ClusterName,
 		notificationTypeID, stateID, report, clusterEntry.UpdatedAt,

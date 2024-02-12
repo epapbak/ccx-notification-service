@@ -41,13 +41,13 @@ func setupMockOCMGateway() *mocks.OCMClient {
 	gateway := mocks.OCMClient{}
 	gateway.On("GetTokens",
 		mock.AnythingOfType("time.Duration")).Return(
-		func(delay time.Duration) string {
+		func(_ time.Duration) string {
 			return "online_token"
 		},
-		func(delay time.Duration) string {
+		func(_ time.Duration) string {
 			return "refresh_token"
 		},
-		func(delay time.Duration) error {
+		func(_ time.Duration) error {
 			return nil
 		},
 	)
@@ -58,13 +58,13 @@ func setupMockOCMGatewayWithError() *mocks.OCMClient {
 	gateway := mocks.OCMClient{}
 	gateway.On("GetTokens",
 		mock.AnythingOfType("time.Duration")).Return(
-		func(delay time.Duration) string {
+		func(_ time.Duration) string {
 			return "online_token"
 		},
-		func(delay time.Duration) string {
+		func(_ time.Duration) string {
 			return "refresh_token"
 		},
-		func(delay time.Duration) error {
+		func(_ time.Duration) error {
 			return errors.New("Error retrieving token")
 		},
 	)

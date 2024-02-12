@@ -409,7 +409,6 @@ func updateConfigFromClowder(configuration *ConfigStruct) {
 					fmt.Println(noSaslConfig)
 				}
 			}
-
 		} else {
 			fmt.Println(noBrokerConfig)
 		}

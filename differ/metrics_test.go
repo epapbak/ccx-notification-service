@@ -58,7 +58,7 @@ func TestAddMetricsWithNamespaceAndSubsystem(t *testing.T) {
 func TestPushMetricsNoNamespaceConfig(t *testing.T) {
 	var expectedPushes = 0
 	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			w.WriteHeader(http.StatusOK)
 			expectedPushes++
@@ -82,7 +82,7 @@ func TestPushMetricsNoNamespaceConfig(t *testing.T) {
 func TestPushMetricsGatewayNoAuthConfig(t *testing.T) {
 	var expectedPushes = 0
 	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			w.WriteHeader(http.StatusOK)
 			expectedPushes++
@@ -112,7 +112,7 @@ func TestPushMetricsGatewayNotFailingWithRetriesThenOk(t *testing.T) {
 	)
 
 	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			if pushes >= 5 {
 				w.WriteHeader(http.StatusOK)
@@ -154,7 +154,7 @@ func TestPushMetricsGatewayNotFailingWithRetries(t *testing.T) {
 	)
 
 	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			w.WriteHeader(http.StatusOK)
 			pushes++
@@ -190,7 +190,7 @@ func TestPushMetricsGatewayFailing(t *testing.T) {
 	)
 
 	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			w.WriteHeader(http.StatusBadGateway)
 		}),
@@ -224,7 +224,7 @@ func TestPushMetricsInLoop(t *testing.T) {
 	)
 
 	pgwOK := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", `text/plain; charset=utf-8`)
 			w.WriteHeader(http.StatusOK)
 			pushes++

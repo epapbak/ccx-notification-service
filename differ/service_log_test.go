@@ -195,13 +195,13 @@ func TestProduceEntriesToServiceLog(t *testing.T) {
 
 	producerMock := mocks.Producer{}
 	producerMock.On("ProduceMessage", mock.AnythingOfType("types.ProducerMessage")).Return(
-		func(msg types.ProducerMessage) int32 {
+		func(_ types.ProducerMessage) int32 {
 			return 0
 		},
-		func(msg types.ProducerMessage) int64 {
+		func(_ types.ProducerMessage) int64 {
 			return 0
 		},
-		func(msg types.ProducerMessage) error {
+		func(_ types.ProducerMessage) error {
 			return nil
 		},
 	)

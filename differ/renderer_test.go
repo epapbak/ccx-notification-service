@@ -34,7 +34,7 @@ import (
 )
 
 func TestRenderReportsForCluster(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, err := w.Write([]byte(`{"clusters":["e1a379e4-9ac5-4353-8f82-ad066a734f18"],"reports":{"e1a379e4-9ac5-4353-8f82-ad066a734f18":[{"rule_id":"rule_1","error_key":"RULE_1","resolution":"rule 1 resolution","reason":"rule 1 reason","description":"rule 1 error key description"},{"rule_id":"rule_2","error_key":"RULE_2","resolution":"rule 2 resolution","reason":"","description":"rule 2 error key description"}]}}`))
 		if err != nil {
@@ -134,7 +134,7 @@ func TestRenderReportsForCluster(t *testing.T) {
 }
 
 func TestRenderReportsForClusterInvalidJSON(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, err := w.Write([]byte(`not a JSON`))
 		if err != nil {

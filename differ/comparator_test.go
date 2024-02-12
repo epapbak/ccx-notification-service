@@ -380,10 +380,10 @@ func TestShouldNotifyNoPreviousRecord(t *testing.T) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("types.EventTarget")).
 		Return(
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) types.NotifiedRecordsPerCluster {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) types.NotifiedRecordsPerCluster {
 				return types.NotifiedRecordsPerCluster{}
 			},
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) error {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) error {
 				return nil
 			},
 		)
@@ -417,7 +417,7 @@ func TestShouldNotNotifySameRuleDifferentDetails(t *testing.T) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("types.EventTarget")).
 		Return(
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) types.NotifiedRecordsPerCluster {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) types.NotifiedRecordsPerCluster {
 				return types.NotifiedRecordsPerCluster{
 					types.ClusterOrgKey{OrgID: testCluster.OrgID, ClusterName: testCluster.ClusterName}: {
 						OrgID:              testCluster.OrgID,
@@ -432,7 +432,7 @@ func TestShouldNotNotifySameRuleDifferentDetails(t *testing.T) {
 					},
 				}
 			},
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) error {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) error {
 				return nil
 			},
 		)
@@ -466,7 +466,7 @@ func TestShouldNotifyIssueNotFoundInPreviousRecords(t *testing.T) {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("types.EventTarget")).
 		Return(
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) types.NotifiedRecordsPerCluster {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) types.NotifiedRecordsPerCluster {
 				return types.NotifiedRecordsPerCluster{
 					types.ClusterOrgKey{OrgID: testCluster.OrgID, ClusterName: testCluster.ClusterName}: {
 						OrgID:              testCluster.OrgID,
@@ -481,7 +481,7 @@ func TestShouldNotifyIssueNotFoundInPreviousRecords(t *testing.T) {
 					},
 				}
 			},
-			func(clusterEntries []types.ClusterEntry, timeOffset string, eventTarget types.EventTarget) error {
+			func(_ []types.ClusterEntry, _ string, _ types.EventTarget) error {
 				return nil
 			},
 		)

@@ -242,7 +242,6 @@ func findRuleByNameAndErrorKey(
 // evaluateFilterExpression function tries to evaluate event filter expression
 // based on provided threshold values and actual recommendation values
 func evaluateFilterExpression(eventFilter string, thresholds EventThresholds, eventValue EventValue) (int, error) {
-
 	// values to be passed into expression evaluator
 	values := make(map[string]int)
 	values["likelihoodThreshold"] = thresholds.Likelihood
@@ -409,7 +408,6 @@ func (d *Differ) createAndSendServiceLogEntry(configuration *conf.ConfigStruct, 
 // for each issue found in the given reports
 func (d *Differ) ProduceEntriesToServiceLog(configuration *conf.ConfigStruct, cluster types.ClusterEntry,
 	rules types.Rules, ruleContent types.RulesMap, reports types.ReportContent) (totalMessages int, err error) {
-
 	//TODO: Use pointer when passing around clusterEntry
 	reportsToRender := d.getReportsWithIssuesToNotify(reports, cluster, ruleContent)
 
@@ -454,7 +452,6 @@ func (d *Differ) ProduceEntriesToServiceLog(configuration *conf.ConfigStruct, cl
 
 func (d *Differ) produceEntriesToKafka(cluster types.ClusterEntry, ruleContent types.RulesMap,
 	reportItems types.ReportContent, report types.ClusterReport) (int, error) {
-
 	notificationMsg := generateInstantNotificationMessage(
 		&notificationEventURLs.ClusterDetails,
 		fmt.Sprint(cluster.AccountNumber),
@@ -712,7 +709,6 @@ func generateNotificationPayloadURL(
 
 // appendEventToNotificationMessage function adds a new event to the given notification message after constructing the payload string
 func appendEventToNotificationMessage(notificationPayloadURL string, notification *types.NotificationMessage, ruleDescription string, totalRisk int, publishDate string) {
-
 	payload := types.EventPayload{
 		notificationPayloadRuleDescription: ruleDescription,
 		notificationPayloadRuleURL:         notificationPayloadURL,

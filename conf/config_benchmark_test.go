@@ -75,7 +75,6 @@ func BenchmarkGetProcessingConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetCleanerConfiguration measures the speed of
@@ -93,7 +92,6 @@ func BenchmarkGetCleanerConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetNotificationsConfiguration measures the speed of
@@ -117,7 +115,6 @@ func BenchmarkGetNotificationsConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetDependenciesConfiguration measures the speed of
@@ -138,7 +135,6 @@ func BenchmarkGetDependenciesConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetStorageConfiguration measures the speed of
@@ -156,7 +152,6 @@ func BenchmarkGetStorageConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetLoggingConfiguration measures the speed of
@@ -177,7 +172,6 @@ func BenchmarkGetLoggingConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetKafkaBrokerConfiguration measures the speed of
@@ -198,7 +192,6 @@ func BenchmarkGetKafkaBrokerConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetServiceLogConfiguration measures the speed of
@@ -222,7 +215,6 @@ func BenchmarkGetServiceLogConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
 
 // BenchmarkGetMetricsConfiguration measures the speed of
@@ -243,5 +235,4 @@ func BenchmarkGetMetricsConfiguration(b *testing.B) {
 		}
 		b.StartTimer()
 	}
-
 }
